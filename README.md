@@ -411,18 +411,9 @@ mindmap
 
 ## 💊 Polymer Properties
 
-quadrantChart
-    title Conductive Polymer Comparison Matrix
-    x-axis "Low Conductivity" --> "High Conductivity"
-    y-axis "Low Flexibility" --> "High Flexibility"
-    quadrant-1 High Perf + Flexible
-    quadrant-2 Flexible but Low Cond
-    quadrant-3 Low Perf
-    quadrant-4 High Cond but Rigid
-    PEDOT:PSS: [0.95, 0.82]
-    P3HT: [0.30, 0.93]
-    Polypyrrole: [0.70, 0.57]
-    Polyaniline: [0.50, 0.46]
+<img width="740" height="608" alt="image" src="https://github.com/user-attachments/assets/4f8ba02b-d79a-47e1-bf70-c59f25d6de37" />
+
+---
 
 
 ```mermaid
