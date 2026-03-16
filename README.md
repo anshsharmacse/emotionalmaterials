@@ -80,7 +80,7 @@
 
 **PolyMind AI** is a production-grade full-stack research platform that simulates the electromechanical behavior of **PEDOT:PSS** and other conductive polymers at the atomic scale using industry-standard simulation tools, then maps the polymer's physical response to human biometric signals through a trained deep neural network to predict **human mental states** in real time.
 
-```mermaid
+```
  flowchart TB
     classDef human fill:#ffe4ec,stroke:#e91e63,color:#880e4f,stroke-width:3px
     classDef sensor fill:#e8f5e9,stroke:#4caf50,color:#1b5e20,stroke-width:3px
