@@ -80,27 +80,53 @@
 
 **PolyMind AI** is a production-grade full-stack research platform that simulates the electromechanical behavior of **PEDOT:PSS** and other conductive polymers at the atomic scale using industry-standard simulation tools, then maps the polymer's physical response to human biometric signals through a trained deep neural network to predict **human mental states** in real time.
 
-```
-         Human Body                    Polymer Sensor              Simulation Engine
-    ┌─────────────────┐           ┌──────────────────┐         ┌───────────────────────┐
-    │  Heart Rate     │           │                  │         │  LAMMPS Molecular     │
-    │  Sweat (GSR)    │──────────▶│   PEDOT:PSS      │────────▶│  Dynamics Simulation  │
-    │  EEG Beta Power │           │   Conductive     │         │  + QE DFT Electronic  │
-    │  Skin Temp      │           │   Polymer Sensor │         │  Structure Calculation│
-    └─────────────────┘           └──────────────────┘         └───────────┬───────────┘
-                                                                            │
-                                                                            ▼
-                                                                ┌───────────────────────┐
-                                                                │   MLP Neural Network  │
-                                                                │   6→128→64→32→4       │
-                                                                │   Accuracy: 94.7%     │
-                                                                └───────────┬───────────┘
-                                                                            │
-                                                          ┌─────────────────▼──────────────┐
-                                                          │  😰 Stressed  😌 Calm          │
-                                                          │  😟 Anxious   🧑‍💻 Focused      │
-                                                          └────────────────────────────────┘
-```
+flowchart TB
+    classDef human fill:#ffe4ec,stroke:#e91e63,color:#880e4f,stroke-width:3px
+    classDef sensor fill:#e8f5e9,stroke:#4caf50,color:#1b5e20,stroke-width:3px
+    classDef sim fill:#e3f2fd,stroke:#2196f3,color:#0d47a1,stroke-width:3px
+    classDef nn fill:#f3e5f5,stroke:#9c27b0,color:#4a148c,stroke-width:3px
+    classDef output fill:#fff8e1,stroke:#ff9800,color:#e65100,stroke-width:3px
+
+    subgraph HB["🫀 Human Body"]
+        direction TB
+        HR["💓 Heart Rate"]:::human
+        GSR["💧 Sweat (GSR)"]:::human
+        EEG["🧠 EEG Beta Power"]:::human
+        TEMP["🌡️ Skin Temperature"]:::human
+    end
+
+    subgraph PS["🧬 Polymer Sensor"]
+        SENSOR["<b>PEDOT:PSS</b><br/>Conductive Polymer Sensor<br/>━━━━━━━━━━━━<br/>High Sensitivity<br/>Biocompatible"]:::sensor
+    end
+
+    subgraph SE["⚙️ Simulation Engine"]
+        direction TB
+        LAMMPS["🔬 LAMMPS<br/>Molecular Dynamics<br/>100k Steps"]:::sim
+        QE["⚛️ Quantum ESPRESSO<br/>DFT Electronic Structure<br/>SCF Calculation"]:::sim
+    end
+
+    subgraph NN["🧠 Neural Network"]
+        MLP["<b>MLP Architecture</b><br/>6 → 128 → 64 → 32 → 4<br/>━━━━━━━━━━━━<br/>🎯 Accuracy: 94.7%"]:::nn
+    end
+
+    subgraph OUT["🎭 Mental State Prediction"]
+        STRESSED["😰<br/><b>Stressed</b>"]:::output
+        CALM["😌<br/><b>Calm</b>"]:::output
+        ANXIOUS["😟<br/><b>Anxious</b>"]:::output
+        FOCUSED["🧑‍💻<br/><b>Focused</b>"]:::output
+    end
+
+    HR & GSR & EEG & TEMP -->|"Biometric<br/>Signals"| SENSOR
+    SENSOR -->|"Physical<br/>Response"| LAMMPS
+    SENSOR -->|"Electronic<br/>Properties"| QE
+    LAMMPS & QE -->|"Feature Vector<br/>[strain, σ, T, Eg, HR, GSR]"| MLP
+    MLP -->|"Probabilities"| STRESSED & CALM & ANXIOUS & FOCUSED
+
+    style HB fill:#fce4ec,stroke:#e91e63,stroke-width:2px
+    style PS fill:#e8f5e9,stroke:#4caf50,stroke-width:2px
+    style SE fill:#e3f2fd,stroke:#2196f3,stroke-width:2px
+    style NN fill:#f3e5f5,stroke:#9c27b0,stroke-width:2px
+    style OUT fill:#fff8e1,stroke:#ff9800,stroke-width:2px
 
 ---
 ## 🏗 System Architecture
