@@ -67,19 +67,29 @@ function predictState(strain, hr, gsr, cond) {
 }
 
 /* ── Chart options factory ── */
-function copts(xl, yl, dark) {
-  const gc = dark ? 'rgba(255,255,255,.04)' : 'rgba(0,0,0,.06)';
+function copts(xl, yl, dark, xBounds = {}, yBounds = {}) {
+  const gc = dark ? 'rgba(255,255,255,.05)' : 'rgba(0,0,0,.06)';
   const tc = dark ? '#9999bb' : '#555577';
   return {
-    responsive:true, maintainAspectRatio:false,
-    animation:{ duration:600, easing:'easeInOutQuart' },
-    plugins:{
-      legend:{ labels:{ color:tc, font:{size:11}, boxWidth:12, padding:14 } },
-      tooltip:{ backgroundColor:'rgba(10,10,30,.92)', titleColor:'#00d4ff', bodyColor:'#e0e0ff' },
+    responsive: true, maintainAspectRatio: false,
+    animation: { duration: 700, easing: 'easeInOutQuart' },
+    plugins: {
+      legend: { labels: { color: tc, font: { size: 11 }, boxWidth: 12, padding: 14 } },
+      tooltip: { backgroundColor: 'rgba(10,10,30,.92)', titleColor: '#00d4ff', bodyColor: '#e0e0ff', borderColor: '#2a2a4a', borderWidth: 1 },
     },
-    scales:{
-      x:{ title:{display:true,text:xl,color:tc,font:{size:11}}, ticks:{color:tc,font:{size:10}}, grid:{color:gc} },
-      y:{ title:{display:true,text:yl,color:tc,font:{size:11}}, ticks:{color:tc,font:{size:10}}, grid:{color:gc} },
+    scales: {
+      x: {
+        title: { display: true, text: xl, color: tc, font: { size: 11 } },
+        ticks: { color: tc, font: { size: 10 }, maxTicksLimit: 8 },
+        grid: { color: gc },
+        ...xBounds,
+      },
+      y: {
+        title: { display: true, text: yl, color: tc, font: { size: 11 } },
+        ticks: { color: tc, font: { size: 10 }, maxTicksLimit: 8 },
+        grid: { color: gc },
+        ...yBounds,
+      },
     },
   };
 }
@@ -121,27 +131,99 @@ function genCT(polymer) {
   });
 }
 
-/* ── Syntax code block ── */
-function Code({ code }) {
-  const KW = ['units','atom_style','boundary','pair_style','bond_style','angle_style','read_data','pair_coeff','neighbor','neigh_modify','minimize','fix','timestep','compute','variable','thermo','thermo_style','dump','run','write_data'];
+/* ── VS Code–style syntax highlighter ── */
+function tokenizeLine(line, lang) {
+  // Returns array of {text, color} tokens
+  const tokens = [];
+  const push = (text, color) => text && tokens.push({ text, color });
+
+  // Comment lines
+  if (/^\s*(#|!|\/\/)/.test(line)) {
+    push(line, '#6a9955'); // VS Code green comments
+    return tokens;
+  }
+
+  if (lang === 'lammps') {
+    const KW   = ['units','atom_style','boundary','pair_style','bond_style','angle_style','read_data','pair_coeff','neighbor','neigh_modify','minimize','fix','timestep','compute','variable','thermo','thermo_style','dump','run','write_data'];
+    const parts = line.split(/(\s+|[(),])/);
+    let first = true;
+    for (const part of parts) {
+      if (!part) continue;
+      if (first && KW.includes(part.trim())) { push(part, '#569cd6'); first = false; }
+      else if (/^-?\d+(\.\d+)?([eE][+-]?\d+)?$/.test(part.trim())) push(part, '#b5cea8');
+      else if (/^\s+$/.test(part)) push(part, '#cdd6f4');
+      else { push(part, '#9cdcfe'); first = false; }
+    }
+  } else if (lang === 'python') {
+    const KW   = ['def','import','from','return','if','else','for','in','class','with','as','and','or','not','True','False','None'];
+    const BUIL = ['print','len','range','int','float','str','list','dict','open','super'];
+    // Simple token pass
+    const re = /("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*'|#.*|[A-Za-z_]\w*|\d+(?:\.\d+)?(?:[eE][+-]?\d+)?|[+\-*/=<>!&|.,():\[\]{}]|\s+)/g;
+    let m;
+    while ((m = re.exec(line)) !== null) {
+      const tok = m[0];
+      if (tok.startsWith('"') || tok.startsWith("'")) push(tok, '#ce9178');
+      else if (tok.startsWith('#')) push(tok, '#6a9955');
+      else if (KW.includes(tok))   push(tok, '#c586c0');
+      else if (BUIL.includes(tok)) push(tok, '#dcdcaa');
+      else if (/^\d/.test(tok))    push(tok, '#b5cea8');
+      else if (/^[A-Z]/.test(tok)) push(tok, '#4ec9b0');
+      else if (/[A-Za-z_]/.test(tok[0])) push(tok, '#9cdcfe');
+      else if (/\s/.test(tok))     push(tok, '#cdd6f4');
+      else                          push(tok, '#d4d4d4');
+    }
+  } else {
+    // QE / Fortran-like
+    if (/^&[A-Z]/.test(line.trim()))                   push(line, '#569cd6');
+    else if (line.trim() === '/')                       push(line, '#569cd6');
+    else if (/^[A-Z_]+ (SPECIES|POINTS|PARAM|POS)/.test(line.trim())) push(line, '#4ec9b0');
+    else {
+      const eqIdx = line.indexOf('=');
+      if (eqIdx > -1) {
+        push(line.slice(0, eqIdx), '#9cdcfe');
+        push('=', '#d4d4d4');
+        const val = line.slice(eqIdx + 1);
+        if (val.includes("'")) push(val, '#ce9178');
+        else if (/\d/.test(val)) push(val, '#b5cea8');
+        else push(val, '#ce9178');
+      } else {
+        push(line, '#cdd6f4');
+      }
+    }
+  }
+  return tokens;
+}
+
+function Code({ code, lang = 'lammps' }) {
+  const lines = code.split('\n');
   return (
-    <pre style={{ background:'#000810', border:'1px solid #1a2a3a', borderRadius:10, padding:'12px 14px', fontSize:10.5, lineHeight:1.8, overflowX:'auto', maxHeight:320, color:'#cdd6f4', fontFamily:'"Fira Code","Courier New",monospace', whiteSpace:'pre' }}>
-      {code.split('\n').map((line, i) => {
-        const c = line.trimStart().startsWith('#') || line.trimStart().startsWith('!')
-          ? '#6c7086'
-          : KW.includes(line.trim().split(/\s/)[0])
-          ? '#cba6f7'
-          : /^[&/]/.test(line.trim()) || /^[A-Z_]+ (SPECIES|POINTS|PARAM|POS)/.test(line.trim())
-          ? '#89dceb'
-          : '#cdd6f4';
-        return (
-          <div key={i} style={{ display:'flex', gap:10 }}>
-            <span style={{ color:'#3a3a5a', userSelect:'none', minWidth:22, textAlign:'right' }}>{i+1}</span>
-            <span style={{ color:c }}>{line}</span>
-          </div>
-        );
-      })}
-    </pre>
+    <div style={{ background:'#1e1e1e', border:'1px solid #333', borderRadius:8, overflow:'hidden', fontFamily:'"Fira Code","Cascadia Code","Consolas","Courier New",monospace', fontSize:12.5 }}>
+      {/* Title bar */}
+      <div style={{ background:'#2d2d2d', padding:'6px 12px', display:'flex', alignItems:'center', gap:8, borderBottom:'1px solid #333' }}>
+        <span style={{ width:12, height:12, borderRadius:'50%', background:'#ff5f57', display:'inline-block' }}/>
+        <span style={{ width:12, height:12, borderRadius:'50%', background:'#febc2e', display:'inline-block' }}/>
+        <span style={{ width:12, height:12, borderRadius:'50%', background:'#28c840', display:'inline-block' }}/>
+        <span style={{ color:'#8a8a8a', fontSize:11, marginLeft:8 }}>{lang === 'python' ? 'lammps_script.py' : lang === 'qe' ? 'scf.in' : 'in.lammps'}</span>
+      </div>
+      {/* Code area */}
+      <div style={{ overflowX:'auto', maxHeight:360 }}>
+        <table style={{ borderCollapse:'collapse', width:'100%', tableLayout:'auto' }}>
+          <tbody>
+            {lines.map((line, i) => (
+              <tr key={i} style={{ lineHeight:'1.7' }}>
+                <td style={{ padding:'0 12px 0 8px', textAlign:'right', color:'#4a4a6a', userSelect:'none', minWidth:36, background:'#1e1e1e', borderRight:'1px solid #2a2a3a', fontSize:11 }}>{i+1}</td>
+                <td style={{ padding:'0 16px', whiteSpace:'pre', background: i % 2 === 0 ? '#1e1e1e' : '#1e1e20' }}>
+                  {tokenizeLine(line, lang).map((tok, j) => (
+                    <span key={j} style={{ color: tok.color }}>{tok.text}</span>
+                  ))}
+                  {tokenizeLine(line, lang).length === 0 && <span>&nbsp;</span>}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
   );
 }
 
@@ -278,16 +360,27 @@ export default function App() {
   /* chart data */
   const chartData = useCallback(() => {
     const polys = gPolys.length ? gPolys : ['PEDOT:PSS'];
-    if (graphType === 'ss')   return { datasets: polys.map(p => ({ label:p, data:genSS(p,strain), borderColor:PC[p], backgroundColor:PC[p]+'22', showLine:true, pointRadius:2, borderWidth:2, tension:0.4, fill:true })) };
-    if (graphType === 'iv')   return { datasets: polys.map(p => ({ label:p, data:genIV(p), borderColor:PC[p], backgroundColor:'transparent', showLine:true, pointRadius:1.5, borderWidth:2, tension:0.3 })) };
+    if (graphType === 'ss')   return { datasets: polys.map(p => ({ label:p, data:genSS(p,strain), borderColor:PC[p], backgroundColor:PC[p]+'33', showLine:true, pointRadius:3, pointHoverRadius:5, borderWidth:2.5, tension:0.4, fill:false })) };
+    if (graphType === 'iv')   return { datasets: polys.map(p => ({ label:p, data:genIV(p), borderColor:PC[p], backgroundColor:'transparent', showLine:true, pointRadius:2, borderWidth:2.5, tension:0.3 })) };
     if (graphType === 'band') { const bd=genBand(); return { datasets:[{label:'Conduction Band',data:bd.map(d=>({x:d.k,y:d.cb})),borderColor:'#00d4ff',backgroundColor:'rgba(0,212,255,.08)',showLine:true,pointRadius:0,borderWidth:2.5,tension:0.4,fill:true},{label:'Valence Band',data:bd.map(d=>({x:d.k,y:d.vb})),borderColor:'#f72585',backgroundColor:'rgba(247,37,133,.06)',showLine:true,pointRadius:0,borderWidth:2.5,tension:0.4,fill:true},{label:'Fermi Level',data:bd.map(d=>({x:d.k,y:1.25})),borderColor:'#f9c74f',borderDash:[6,3],showLine:true,pointRadius:0,borderWidth:1.5}] }; }
-    if (graphType === 'dos')  { const d=genDOS(); return { datasets:[{label:'DOS',data:d.map(v=>({x:v.e,y:v.d})),borderColor:'#9d4edd',backgroundColor:'rgba(157,78,221,.12)',showLine:true,pointRadius:0,borderWidth:2,tension:0.35,fill:true}] }; }
-    if (graphType === 'cond') return { datasets: polys.map(p => ({ label:p, data:genCT(p).map(v=>({x:v.T,y:v.s})), borderColor:PC[p], backgroundColor:'transparent', showLine:true, pointRadius:3, borderWidth:2, tension:0.4 })) };
+    if (graphType === 'dos')  { const d=genDOS(); return { datasets:[{label:'DOS',data:d.map(v=>({x:v.e,y:v.d})),borderColor:'#9d4edd',backgroundColor:'rgba(157,78,221,.15)',showLine:true,pointRadius:0,borderWidth:2.5,tension:0.35,fill:true}] }; }
+    if (graphType === 'cond') return { datasets: polys.map(p => ({ label:p, data:genCT(p).map(v=>({x:v.T,y:v.s})), borderColor:PC[p], backgroundColor:'transparent', showLine:true, pointRadius:3, borderWidth:2.5, tension:0.4 })) };
     const sc=['#f72585','#00d4ff','#f9c74f','#39d353'];
-    return { datasets: ['Stressed','Calm','Anxious','Focused'].map((s,si) => ({ label:s, data:Array.from({length:40},()=>({x:parseFloat((Math.random()*0.18+si*0.04).toFixed(4)),y:parseFloat((950-si*130+Math.random()*80-40).toFixed(0))})), backgroundColor:sc[si]+'aa', pointRadius:6 })) };
+    return { datasets: ['Stressed','Calm','Anxious','Focused'].map((s,si) => ({ label:s, data:Array.from({length:40},()=>({x:parseFloat((Math.random()*0.18+si*0.04).toFixed(4)),y:parseFloat((950-si*130+Math.random()*80-40).toFixed(0))})), backgroundColor:sc[si]+'cc', pointRadius:6, pointHoverRadius:8 })) };
   }, [graphType, strain, gPolys]);
 
-  const GL = { ss:{x:'Strain',y:'Stress (MPa)'}, iv:{x:'Voltage (V)',y:'Current (A)'}, band:{x:'k-vector',y:'Energy (eV)'}, dos:{x:'Energy (eV)',y:'DOS'}, cond:{x:'Temperature (K)',y:'Conductivity (S/cm)'}, scatter:{x:'Strain',y:'Conductivity (S/cm)'} };
+  // Per-graph axis bounds to fix the x-axis compression issue
+  const getChartOpts = useCallback(() => {
+    const base = (xl, yl, xB={}, yB={}) => copts(xl, yl, dark, xB, yB);
+    const polys = gPolys.length ? gPolys : ['PEDOT:PSS'];
+    const maxStress = (E_MOD[polys[0]] || 2200) * strain / 100 * 1.1;
+    if (graphType === 'ss')     return base('Strain (ε)', 'Stress (MPa)', { min:0, max: strain/100*1.05, type:'linear' }, { min:0, suggestedMax: maxStress });
+    if (graphType === 'iv')     return base('Voltage (V)', 'Current (A)', { min:-2, max:2 }, {});
+    if (graphType === 'band')   return base('k-vector (2π/a)', 'Energy (eV)', { min:-1, max:1 }, { min:-3, max:6 });
+    if (graphType === 'dos')    return base('Energy (eV)', 'DOS (states/eV)', { min:-3, max:3 }, { min:0 });
+    if (graphType === 'cond')   return base('Temperature (K)', 'Conductivity (S/cm)', { min:200, max:500 }, { min:0 });
+    return base('Strain (ε)', 'Conductivity (S/cm)', { min:0, max:0.25 }, { min:0, max:1100 });
+  }, [graphType, strain, gPolys, dark]);
 
   return (
     <>
@@ -402,11 +495,11 @@ export default function App() {
                       <button key={tab} onClick={() => setCodeTab(tab)} style={{ padding:'7px 14px', borderRadius:'8px 8px 0 0', border:`1px solid ${t.border}`, background:codeTab===tab?'#000810':t.card2, color:codeTab===tab?t.accent:t.muted, cursor:'pointer', fontSize:11.5, fontWeight:600 }}>{label}</button>
                     ))}
                   </div>
-                  <Code code={codeTab==='lammps' ? LAMMPS_CODE : QE_CODE}/>
+                  <Code code={codeTab==='lammps' ? LAMMPS_CODE : QE_CODE} lang={codeTab==='lammps' ? 'lammps' : 'qe'}/>
                 </div>
                 <div style={card2}>
                   <div style={{ fontSize:11, fontWeight:700, color:t.accent, marginBottom:10 }}>PYTHON API WRAPPER</div>
-                  <Code code={`from lammps import lammps
+                  <Code lang="python" code={`from lammps import lammps
 import numpy as np
 
 def run_polymer_md(polymer, strain, temp, steps):
@@ -445,8 +538,8 @@ def run_polymer_md(polymer, strain, temp, steps):
                   <div style={{ fontSize:11, fontWeight:700, color:t.accent, marginBottom:10 }}>STRESS-STRAIN CURVE</div>
                   <div style={{ height:220, position:'relative' }}>
                     <Scatter
-                      data={{ datasets:[{ label:polymer+' Stress-Strain', data:genSS(polymer,strain), borderColor:t.accent, backgroundColor:t.accent+'22', showLine:true, pointRadius:2, borderWidth:2, tension:0.4, fill:true }] }}
-                      options={{ ...copts('Strain','Stress (MPa)',dark), plugins:{ legend:{display:false}, tooltip:{backgroundColor:'rgba(10,10,30,.9)',titleColor:'#00d4ff',bodyColor:'#e0e0ff'} } }}
+                      data={{ datasets:[{ label:polymer+' Stress-Strain', data:genSS(polymer,strain), borderColor:t.accent, backgroundColor:t.accent+'33', showLine:true, pointRadius:3, borderWidth:2.5, tension:0.4, fill:false }] }}
+                      options={copts('Strain (ε)','Stress (MPa)',dark,{ min:0, max:strain/100*1.1, type:'linear' },{ min:0, suggestedMax:(E_MOD[polymer]||2200)*strain/100*1.1 })}
                     />
                   </div>
                 </div>
@@ -541,8 +634,8 @@ def run_polymer_md(polymer, strain, temp, steps):
                 </div>
                 <div style={{ height:420, position:'relative' }}>
                   {graphType === 'scatter'
-                    ? <Scatter data={chartData()} options={copts(GL[graphType]&&GL[graphType].x||'',GL[graphType]&&GL[graphType].y||'',dark)}/>
-                    : <Line    data={chartData()} options={copts(GL[graphType]&&GL[graphType].x||'',GL[graphType]&&GL[graphType].y||'',dark)}/>
+                    ? <Scatter data={chartData()} options={getChartOpts()}/>
+                    : <Line    data={chartData()} options={getChartOpts()}/>
                   }
                 </div>
               </div>
