@@ -107,12 +107,12 @@
 
 ```mermaid
 graph TB
-    classDef frontend fill:#0d1117,stroke:#00d4ff,color:#00d4ff,stroke-width:2px
-    classDef backend fill:#0d1117,stroke:#9d4edd,color:#9d4edd,stroke-width:2px
-    classDef simulation fill:#0d1117,stroke:#f72585,color:#f72585,stroke-width:2px
-    classDef ai fill:#0d1117,stroke:#39d353,color:#39d353,stroke-width:2px
-    classDef db fill:#0d1117,stroke:#f9c74f,color:#f9c74f,stroke-width:2px
-    classDef user fill:#0d1117,stroke:#4fc3f7,color:#4fc3f7,stroke-width:2px
+    classDef frontend fill:#e0f7ff,stroke:#00d4ff,color:#006080,stroke-width:2px
+    classDef backend fill:#f3e8ff,stroke:#9d4edd,color:#5a189a,stroke-width:2px
+    classDef simulation fill:#ffe0ec,stroke:#f72585,color:#a4133c,stroke-width:2px
+    classDef ai fill:#e0fff0,stroke:#39d353,color:#1a7f37,stroke-width:2px
+    classDef db fill:#fffbe0,stroke:#f9c74f,color:#92400e,stroke-width:2px
+    classDef user fill:#e0f4ff,stroke:#4fc3f7,color:#0277bd,stroke-width:2px
 
     USER(["👤 User Browser"]):::user
 
@@ -179,7 +179,7 @@ sequenceDiagram
     participant NN as 🧠 Neural Network
     participant DB as 🗄️ Database
 
-    rect rgb(13, 17, 23)
+    rect rgb(240, 248, 255)
         Note over U,DB: 🚀 Simulation + Prediction Pipeline
     end
 
@@ -218,12 +218,12 @@ sequenceDiagram
 
 ```mermaid
 flowchart LR
-    style A fill:#1a0010,stroke:#f72585,color:#f72585
-    style B fill:#001a0d,stroke:#39d353,color:#39d353
-    style C fill:#001020,stroke:#00d4ff,color:#00d4ff
-    style D fill:#100020,stroke:#9d4edd,color:#9d4edd
-    style E fill:#1a1000,stroke:#f9c74f,color:#f9c74f
-    style F fill:#001a0d,stroke:#39d353,color:#39d353
+    style A fill:#ffe0ec,stroke:#f72585,color:#a4133c
+    style B fill:#e0fff0,stroke:#39d353,color:#1a7f37
+    style C fill:#e0f7ff,stroke:#00d4ff,color:#006080
+    style D fill:#f3e8ff,stroke:#9d4edd,color:#5a189a
+    style E fill:#fffbe0,stroke:#f9c74f,color:#92400e
+    style F fill:#e0fff0,stroke:#39d353,color:#1a7f37
 
     A["🧬 Polymer Input\n━━━━━━━━━━━━\nPEDOT:PSS\nPolypyrrole\nPolyaniline\nP3HT"]
 
@@ -251,9 +251,9 @@ flowchart LR
     K --> L["🎯 Mental State\nPrediction"]
 
     B -.->|"OPLS-AA"| B
-    style LAMMPS_BLOCK fill:#0a0010,stroke:#f72585
-    style QE_BLOCK fill:#000a10,stroke:#00d4ff
-    style OUT fill:#000a00,stroke:#39d353
+    style LAMMPS_BLOCK fill:#fff0f5,stroke:#f72585
+    style QE_BLOCK fill:#f0f8ff,stroke:#00d4ff
+    style OUT fill:#f0fff0,stroke:#39d353
 ```
 
 ---
@@ -262,12 +262,12 @@ flowchart LR
 
 ```mermaid
 graph LR
-    classDef inp fill:#001a2e,stroke:#00d4ff,color:#00d4ff,stroke-width:2px
-    classDef h1  fill:#150028,stroke:#9d4edd,color:#9d4edd,stroke-width:2px
-    classDef h2  fill:#150028,stroke:#9d4edd,color:#c084fc,stroke-width:2px
-    classDef h3  fill:#150028,stroke:#9d4edd,color:#e9d5ff,stroke-width:2px
-    classDef out fill:#001a08,stroke:#39d353,color:#39d353,stroke-width:2px
-    classDef reg fill:#1a0010,stroke:#f72585,color:#f72585,stroke-width:1px,font-size:10px
+    classDef inp fill:#e0f7ff,stroke:#00d4ff,color:#006080,stroke-width:2px
+    classDef h1  fill:#f3e8ff,stroke:#9d4edd,color:#5a189a,stroke-width:2px
+    classDef h2  fill:#f3e8ff,stroke:#9d4edd,color:#7b2cbf,stroke-width:2px
+    classDef h3  fill:#f3e8ff,stroke:#9d4edd,color:#c084fc,stroke-width:2px
+    classDef out fill:#e0fff0,stroke:#39d353,color:#1a7f37,stroke-width:2px
+    classDef reg fill:#ffe0ec,stroke:#f72585,color:#a4133c,stroke-width:1px,font-size:10px
 
     subgraph INPUT["📥  Input Layer  (6 neurons)"]
         I1["ε\nStrain"]:::inp
@@ -475,11 +475,11 @@ pie title Mental State Distribution in Training Dataset
 
 ```mermaid
 graph TD
-    classDef ep fill:#0a0014,stroke:#9d4edd,color:#c084fc,stroke-width:1.5px
-    classDef pub fill:#001408,stroke:#39d353,color:#86efac,stroke-width:1.5px
-    classDef priv fill:#140008,stroke:#f72585,color:#fda4af,stroke-width:1.5px
-    classDef adm fill:#141400,stroke:#f9c74f,color:#fef08a,stroke-width:1.5px
-    classDef mid fill:#000a14,stroke:#00d4ff,color:#7dd3fc,stroke-width:1.5px
+    classDef ep fill:#f3e8ff,stroke:#9d4edd,color:#5a189a,stroke-width:1.5px
+    classDef pub fill:#e0fff0,stroke:#39d353,color:#1a7f37,stroke-width:1.5px
+    classDef priv fill:#ffe0ec,stroke:#f72585,color:#a4133c,stroke-width:1.5px
+    classDef adm fill:#fffbe0,stroke:#f9c74f,color:#92400e,stroke-width:1.5px
+    classDef mid fill:#e0f7ff,stroke:#00d4ff,color:#006080,stroke-width:1.5px
 
     CLIENT["🖥️ Client"]
 
@@ -548,12 +548,12 @@ erDiagram
 
 ```mermaid
 flowchart TD
-    classDef bio fill:#0a001a,stroke:#9d4edd,color:#c084fc
-    classDef poly fill:#001a10,stroke:#39d353,color:#86efac
-    classDef sim fill:#001428,stroke:#00d4ff,color:#7dd3fc
-    classDef feat fill:#1a1400,stroke:#f9c74f,color:#fef08a
-    classDef nn fill:#1a0010,stroke:#f72585,color:#fda4af
-    classDef out fill:#001a10,stroke:#39d353,color:#86efac
+    classDef bio fill:#f3e8ff,stroke:#9d4edd,color:#5a189a
+    classDef poly fill:#e0fff0,stroke:#39d353,color:#1a7f37
+    classDef sim fill:#e0f7ff,stroke:#00d4ff,color:#006080
+    classDef feat fill:#fffbe0,stroke:#f9c74f,color:#92400e
+    classDef nn fill:#ffe0ec,stroke:#f72585,color:#a4133c
+    classDef out fill:#e0fff0,stroke:#39d353,color:#1a7f37
 
     A["🫀 Biometric Signals\n━━━━━━━━━━━━━━━\nHeart Rate: 102 bpm\nGSR: 68 μS\nEEG Beta: 55%\nSkin Temp: 34°C"]:::bio
 
@@ -630,11 +630,11 @@ mindmap
 
 ```mermaid
 graph LR
-    classDef fe  fill:#0a001a,stroke:#00d4ff,color:#7dd3fc
-    classDef be  fill:#001428,stroke:#9d4edd,color:#c084fc
-    classDef ml  fill:#001408,stroke:#39d353,color:#86efac
-    classDef sim fill:#1a0010,stroke:#f72585,color:#fda4af
-    classDef inf fill:#141400,stroke:#f9c74f,color:#fef08a
+    classDef fe  fill:#e0f7ff,stroke:#00d4ff,color:#006080
+    classDef be  fill:#f3e8ff,stroke:#9d4edd,color:#5a189a
+    classDef ml  fill:#e0fff0,stroke:#39d353,color:#1a7f37
+    classDef sim fill:#ffe0ec,stroke:#f72585,color:#a4133c
+    classDef inf fill:#fffbe0,stroke:#f9c74f,color:#92400e
 
     subgraph FE["🖥️ Frontend"]
         N["Next.js 15.3.6"]:::fe
@@ -728,11 +728,11 @@ DATABASE_URL=sqlite:///./polymind.db
 
 ```mermaid
 flowchart LR
-    classDef src  fill:#0a0014,stroke:#9d4edd,color:#c084fc
-    classDef gh   fill:#0a0a0a,stroke:#ffffff,color:#ffffff
-    classDef vc   fill:#0a0a0a,stroke:#000000,color:#888888
-    classDef ra   fill:#140028,stroke:#8b5cf6,color:#c4b5fd
-    classDef db   fill:#001408,stroke:#39d353,color:#86efac
+    classDef src  fill:#f3e8ff,stroke:#9d4edd,color:#5a189a
+    classDef gh   fill:#f5f5f5,stroke:#333333,color:#333333
+    classDef vc   fill:#f5f5f5,stroke:#888888,color:#333333
+    classDef ra   fill:#f3e8ff,stroke:#8b5cf6,color:#5a189a
+    classDef db   fill:#e0fff0,stroke:#39d353,color:#1a7f37
 
     CODE["💻 Local Code\nRepo Root Structure"]:::src
     CODE -->|"git push"| GITHUB["⬛ GitHub\nanshsharmacse/\nPolymindAI"]:::gh
