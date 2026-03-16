@@ -411,7 +411,6 @@ mindmap
 
 ## 💊 Polymer Properties
 
-```mermaid
 quadrantChart
     title Conductive Polymer Comparison Matrix
     x-axis "Low Conductivity" --> "High Conductivity"
@@ -424,7 +423,7 @@ quadrantChart
     P3HT: [0.30, 0.93]
     Polypyrrole: [0.70, 0.57]
     Polyaniline: [0.50, 0.46]
-```
+
 
 ```mermaid
 xychart-beta
