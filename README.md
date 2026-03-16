@@ -45,7 +45,7 @@
 
 | | |
 |:---:|:---|
-| <img src="https://github.com/anshsharmacse.png" width="120" style="border-radius:50%"/> | **Ansh Sharma** &nbsp; `B230825MT` <br/><br/> *Computer Science Engineer · AI Researcher · Computational Materials Scientist* <br/><br/> [![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-0077B5?style=flat-square&logo=linkedin)](https://www.linkedin.com/in/anshsharmacse/) &nbsp; [![GitHub](https://img.shields.io/badge/GitHub-Follow-181717?style=flat-square&logo=github)](https://github.com/anshsharmacse/) &nbsp; [![Portfolio](https://img.shields.io/badge/Portfolio-Visit-39d353?style=flat-square&logo=linktree)](https://linktr.ee/Anshsharma_21?utm_source=linktree_profile_share&ltsid=6cda2541-2501-4146-991e-cb8a5b0fecb3) |
+| <img src="https://github.com/anshsharmacse.png" width="120" style="border-radius:50%"/> | **Ansh Sharma** &nbsp; `B230825MT` <br/><br/> *National Institute of Technology Calicut* <br/><br/> [![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-0077B5?style=flat-square&logo=linkedin)](https://www.linkedin.com/in/anshsharmacse/) &nbsp; [![GitHub](https://img.shields.io/badge/GitHub-Follow-181717?style=flat-square&logo=github)](https://github.com/anshsharmacse/) &nbsp; [![Portfolio](https://img.shields.io/badge/Portfolio-Visit-39d353?style=flat-square&logo=linktree)](https://linktr.ee/Anshsharma_21?utm_source=linktree_profile_share&ltsid=6cda2541-2501-4146-991e-cb8a5b0fecb3) |
 
 </div>
 
