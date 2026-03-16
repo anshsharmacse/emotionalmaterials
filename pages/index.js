@@ -371,10 +371,13 @@ export default function App() {
 
   // Per-graph axis bounds to fix the x-axis compression issue
   const getChartOpts = useCallback(() => {
-    const base = (xl, yl, xB={}, yB={}) => copts(xl, yl, dark, xB, yB);
+    const base = (xl, yl, xB={}, yB={}) => copts(xl, yl, dark,
+      { type:'linear', ...xB },   // type:linear is CRITICAL for {x,y} data in Scatter
+      yB
+    );
     const polys = gPolys.length ? gPolys : ['PEDOT:PSS'];
     const maxStress = (E_MOD[polys[0]] || 2200) * strain / 100 * 1.1;
-    if (graphType === 'ss')     return base('Strain (ε)', 'Stress (MPa)', { min:0, max: strain/100*1.05, type:'linear' }, { min:0, suggestedMax: maxStress });
+    if (graphType === 'ss')     return base('Strain (ε)', 'Stress (MPa)', { min:0, max: Math.max(strain/100*1.1, 0.005) }, { min:0, suggestedMax: Math.max(maxStress,10) });
     if (graphType === 'iv')     return base('Voltage (V)', 'Current (A)', { min:-2, max:2 }, {});
     if (graphType === 'band')   return base('k-vector (2π/a)', 'Energy (eV)', { min:-1, max:1 }, { min:-3, max:6 });
     if (graphType === 'dos')    return base('Energy (eV)', 'DOS (states/eV)', { min:-3, max:3 }, { min:0 });
@@ -539,7 +542,7 @@ def run_polymer_md(polymer, strain, temp, steps):
                   <div style={{ height:220, position:'relative' }}>
                     <Scatter
                       data={{ datasets:[{ label:polymer+' Stress-Strain', data:genSS(polymer,strain), borderColor:t.accent, backgroundColor:t.accent+'33', showLine:true, pointRadius:3, borderWidth:2.5, tension:0.4, fill:false }] }}
-                      options={copts('Strain (ε)','Stress (MPa)',dark,{ min:0, max:strain/100*1.1, type:'linear' },{ min:0, suggestedMax:(E_MOD[polymer]||2200)*strain/100*1.1 })}
+                      options={copts('Strain (ε)','Stress (MPa)',dark,{ type:'linear', min:0, max:Math.max(strain/100*1.1,0.005) },{ min:0, suggestedMax:Math.max((E_MOD[polymer]||2200)*strain/100*1.1,10) })}
                     />
                   </div>
                 </div>
@@ -633,10 +636,8 @@ def run_polymer_md(polymer, strain, temp, steps):
                   </div>
                 </div>
                 <div style={{ height:420, position:'relative' }}>
-                  {graphType === 'scatter'
-                    ? <Scatter data={chartData()} options={getChartOpts()}/>
-                    : <Line    data={chartData()} options={getChartOpts()}/>
-                  }
+                  {/* Use Scatter for ALL types — natively handles {x,y} with linear axes */}
+                  <Scatter data={chartData()} options={getChartOpts()}/>
                 </div>
               </div>
             </div>
