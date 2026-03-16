@@ -1,0 +1,108 @@
+name: PolyMind AI CI/CD
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  NEXT_TELEMETRY_DISABLED: 1
+
+jobs:
+
+  frontend:
+    name: Frontend
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+      - uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node18-${{ hashFiles('package.json') }}
+          restore-keys: ${{ runner.os }}-node18-
+      - run: npm install --no-audit --no-fund
+      - run: npm run build
+        env:
+          NEXT_PUBLIC_API_URL: http://localhost:8000
+
+  backend:
+    name: Backend
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('backend/requirements.txt') }}
+          restore-keys: ${{ runner.os }}-pip-
+      - run: pip install -r requirements.txt
+
+      - name: Verify PyJWT
+        run: python -c "import jwt; print('PyJWT', jwt.__version__)"
+
+      - name: Test simulation
+        run: |
+          python -c "
+          import sys, os; sys.path.insert(0, os.getcwd())
+          from simulation.lammps_script import get_lammps_script, run_polymer_md
+          assert 'units' in get_lammps_script()
+          r = run_polymer_md('PEDOT:PSS', 0.05, 300.0, 1.0, 10)
+          assert 'stress_strain' in r
+          print('LAMMPS OK:', r.get('source'))
+          from simulation.qe_script import get_qe_script, run_dft_calculation
+          assert 'CONTROL' in get_qe_script()
+          r = run_dft_calculation('PEDOT:PSS', 0.05, 300.0)
+          assert r['band_gap_eV'] > 0 and r['conductivity_S_cm'] > 0
+          print('QE OK: gap', r['band_gap_eV'], 'cond', round(r['conductivity_S_cm'],1))
+          for p in ['PEDOT:PSS','Polypyrrole','Polyaniline','P3HT']:
+              r = run_dft_calculation(p, 0.03, 300.0)
+              assert r['band_gap_eV'] > 0
+          print('All 4 polymers OK')
+          "
+
+      - name: Test neural network
+        run: |
+          python -c "
+          import sys, os, numpy as np; sys.path.insert(0, os.getcwd())
+          from models.neural_net import predict_mental_state, STATES
+          r = predict_mental_state(np.array([[0.08,620.0,305.0,1.65,102.0,68.0]]))
+          assert r['state'] in STATES and 0.0 <= r['confidence'] <= 1.0
+          print('Neural net OK - state:', r['state'])
+          "
+
+      - name: Test database
+        run: |
+          python -c "
+          import sys, os; sys.path.insert(0, os.getcwd())
+          from models.database import SessionLocal, User, Base, engine
+          Base.metadata.create_all(bind=engine)
+          db = SessionLocal()
+          admin = db.query(User).filter(User.username=='admin').first()
+          db.close()
+          assert admin is not None and admin.role == 'admin'
+          print('Database OK - admin seeded')
+          "
+
+      - name: Test JWT and chatbot
+        run: |
+          python -c "
+          import sys, os, jwt; sys.path.insert(0, os.getcwd())
+          from main import create_token, SECRET_KEY, ALGORITHM, CHATBOT_QA
+          token = create_token({'sub':'admin','role':'admin'})
+          p = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+          assert p['sub']=='admin'; print('JWT OK')
+          assert 'hello' in CHATBOT_QA and 'pedot' in CHATBOT_QA
+          reply = next((a for k,a in CHATBOT_QA.items() if k in 'hello'),None)
+          assert reply is not None; print('Chatbot OK - keys:', len(CHATBOT_QA))
+          "

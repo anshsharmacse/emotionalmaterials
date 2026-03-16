@@ -1,0 +1,14 @@
+node_modules/
+.next/
+out/
+.env
+.env.local
+backend/.env
+backend/polymind.db
+backend/models/weights/
+__pycache__/
+*.py[cod]
+venv/
+*.h5
+*.pth
+.DS_Store
