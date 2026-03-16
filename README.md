@@ -104,23 +104,7 @@
 
 ---
 ## 🏗 System Architecture
-```mermaid
-%%{init: {
-  "theme": "base",
-  "themeVariables": {
-    "background": "#ffffff",
-    "primaryColor": "#e3f2fd",
-    "primaryBorderColor": "#1e88e5",
-    "primaryTextColor": "#0d47a1",
-    "secondaryColor": "#f3e5f5",
-    "tertiaryColor": "#e8f5e9",
-    "lineColor": "#37474f",
-    "fontSize": "16px"
-  }
-}}%%
-graph LR
-A[Mermaid Theme Initialized]
-```
+
 ```mermaid
 graph TB
     classDef frontend fill:#0d1117,stroke:#00d4ff,color:#00d4ff,stroke-width:2px
